@@ -1,0 +1,157 @@
+<h1>My Barometer</h1>
+<p>Know your weather. Know yourself.</p>
+<h2>今日の体調は？</h2>
+
+<button onclick="selectCondition(0)">0</button>
+<button onclick="selectCondition(1)">1</button>
+<button onclick="selectCondition(2)">2</button>
+<button onclick="selectCondition(3)">3</button>
+
+<p id="result">まだ選択されていません</p>
+
+<script>
+  function selectCondition(number) {
+    document.getElementById("result").textContent = "選んだ体調：" + number;
+  }
+</script>
+
+<h2>今日の気分は？</h2>
+
+<button onclick="selectMood(3)">☀️</button>
+<button onclick="selectMood(2)">🌤️</button>
+<button onclick="selectMood(1)">☁️</button>
+<button onclick="selectMood(0)">🌧️</button>
+
+<p id="moodResult">まだ選択されていません</p>
+
+<h2>今日の状況は？</h2>
+
+<label><input type="checkbox" value="睡眠不足"> 睡眠不足</label>
+<label><input type="checkbox" value="飲酒"> 飲酒</label>
+<label><input type="checkbox" value="運動"> 運動</label>
+<label><input type="checkbox" value="外出"> 外出</label>
+<label><input type="checkbox" value="仕事"> 仕事が忙しい</label>
+<label><input type="checkbox" value="楽しい"> 楽しいことがあった</label>
+
+<br><br>
+<button onclick="saveRecord()">記録する</button>
+
+<br><br>
+<button onclick="showRecords()">過去の記録を見る</button>
+
+<br><br>
+<button onclick="downloadCSV()">CSVを書き出す</button>
+<div id="recordsList"></div>
+
+<p id="recordResult">まだ記録されていません</p>
+
+<script>
+  function selectMood(number) {
+    document.getElementById("moodResult").textContent = "選んだ気分：" + number;
+  }
+ function saveRecord() {
+  const conditionText = document.getElementById("result").textContent;
+  const moodText = document.getElementById("moodResult").textContent;
+
+  const checkedItems = document.querySelectorAll('input[type="checkbox"]:checked');
+  const situations = [];
+
+  checkedItems.forEach(function(item) {
+    situations.push(item.value);
+  });
+
+  const now = new Date();
+  const dateTime = now.toLocaleString();
+
+  const record = {
+    dateTime: dateTime,
+    condition: conditionText,
+    mood: moodText,
+    situations: situations
+  };
+
+  const records = JSON.parse(localStorage.getItem("myBarometerRecords")) || [];
+
+  records.push(record);
+
+  localStorage.setItem("myBarometerRecords", JSON.stringify(records));
+
+  document.getElementById("recordResult").textContent =
+    dateTime + " / " +
+    conditionText + " / " +
+    moodText + " / 状況：" +
+    (situations.length > 0 ? situations.join("・") : "なし");
+}
+function showRecords() {
+  const records = JSON.parse(localStorage.getItem("myBarometerRecords")) || [];
+  const recordsList = document.getElementById("recordsList");
+
+  if (records.length === 0) {
+    recordsList.innerHTML = "<p>まだ記録がありません</p>";
+    return;
+  }
+
+  let html = "<h2>過去の記録</h2>";
+ 
+  records.forEach(function(record, index) {
+  html +=
+    "<p>" +
+    record.dateTime +
+    " / " +
+    record.condition +
+    " / " +
+    record.mood +
+    " / 状況：" +
+    (record.situations.length > 0 ? record.situations.join("・") : "なし") +
+    ' <button onclick="deleteRecord(' + index + ')">削除</button>' +
+    "</p>";
+});
+
+  recordsList.innerHTML = html;
+}
+function deleteRecord(index) {
+  const records = JSON.parse(localStorage.getItem("myBarometerRecords")) || [];
+
+  records.splice(index, 1);
+
+  localStorage.setItem("myBarometerRecords", JSON.stringify(records));
+
+  showRecords();
+}
+function downloadCSV() {
+  const records = JSON.parse(localStorage.getItem("myBarometerRecords")) || [];
+
+  if (records.length === 0) {
+    alert("まだ記録がありません");
+    return;
+  }
+
+  let csv = "日時,体調,気分,状況\n";
+
+  records.forEach(function(record) {
+    const situationText =
+      record.situations.length > 0 ? record.situations.join("・") : "なし";
+
+    csv +=
+      '"' + record.dateTime + '",' +
+      '"' + record.condition + '",' +
+      '"' + record.mood + '",' +
+      '"' + situationText + '"\n';
+  });
+
+  const bom = "\uFEFF";
+  const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "MyBarometer_records.csv";
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+</script>
