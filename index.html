@@ -1,30 +1,134 @@
+<style>
+  .condition-buttons {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .condition-button {
+    width: 70px;
+    height: 70px;
+    font-size: 32px;
+    border: 2px solid #ccc;
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+  }
+
+  .condition-button span {
+    display: block;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .condition-button.selected {
+    border: 3px solid #ff8a80;
+    background: #fff0ee;
+  }
+    .mood-buttons {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .mood-button {
+    width: 70px;
+    height: 70px;
+    font-size: 32px;
+    border: 2px solid #ccc;
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+  }
+
+  .mood-button.selected {
+    border: 3px solid #87bfff;
+    background: #eef7ff;
+  }
+    .environment-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+
+  .environment-button {
+    min-width: 120px;
+    height: 58px;
+    padding: 0 14px;
+    font-size: 17px;
+    border: 2px solid #ccc;
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+  }
+
+  .environment-button.selected {
+    border: 3px solid #8fc9a3;
+    background: #effaf2;
+  }
+</style>
 <h1>My Barometer</h1>
 <p>Know your weather. Know yourself.</p>
 <h2>今日の体調は？</h2>
 
-<button onclick="selectCondition(0)">0</button>
-<button onclick="selectCondition(1)">1</button>
-<button onclick="selectCondition(2)">2</button>
-<button onclick="selectCondition(3)">3</button>
+<div class="condition-buttons">
+  <button class="condition-button" onclick="selectCondition(0, this)">😊<span>0</span></button>
+  <button class="condition-button" onclick="selectCondition(1, this)">🙂<span>1</span></button>
+  <button class="condition-button" onclick="selectCondition(2, this)">😣<span>2</span></button>
+  <button class="condition-button" onclick="selectCondition(3, this)">😫<span>3</span></button>
+</div>
 
 <p id="result">まだ選択されていません</p>
-
 <script>
-  function selectCondition(number) {
-    document.getElementById("result").textContent = "選んだ体調：" + number;
-  }
+function selectCondition(number, button) {
+  document.getElementById("result").textContent = "選んだ体調：" + number;
+
+  const buttons = document.querySelectorAll(".condition-button");
+
+  buttons.forEach(function(item) {
+    item.classList.remove("selected");
+  });
+
+  button.classList.add("selected");
+}
 </script>
 
 <h2>今日の気分は？</h2>
 
-<button onclick="selectMood(3)">☀️</button>
-<button onclick="selectMood(2)">🌤️</button>
-<button onclick="selectMood(1)">☁️</button>
-<button onclick="selectMood(0)">🌧️</button>
+<div class="mood-buttons">
+  <button class="mood-button" onclick="selectMood(3, this)">☀️</button>
+  <button class="mood-button" onclick="selectMood(2, this)">🌤️</button>
+  <button class="mood-button" onclick="selectMood(1, this)">☁️</button>
+  <button class="mood-button" onclick="selectMood(0, this)">🌧️</button>
+</div>
 
 <p id="moodResult">まだ選択されていません</p>
 
-<h2>今日の状況は？</h2>
+<h2>今の環境は？</h2>
+
+<div class="environment-buttons">
+  <button class="environment-button" onclick="selectEnvironment('リラックス中', this)">🏠 リラックス中</button>
+  <button class="environment-button" onclick="selectEnvironment('仕事中', this)">💻 仕事中</button>
+  <button class="environment-button" onclick="selectEnvironment('移動中', this)">🚃 移動中</button>
+</div>
+
+<p id="environmentResult">まだ選択されていません</p>
+<script>
+function selectEnvironment(environment, button) {
+  document.getElementById("environmentResult").textContent =
+    "選んだ環境：" + environment;
+
+  const buttons = document.querySelectorAll(".environment-button");
+
+  buttons.forEach(function(item) {
+    item.classList.remove("selected");
+  });
+
+  button.classList.add("selected");
+}
+</script>
+<h2>今の細かい状況は？</h2>
 
 <label><input type="checkbox" value="睡眠不足"> 睡眠不足</label>
 <label><input type="checkbox" value="飲酒"> 飲酒</label>
@@ -32,6 +136,16 @@
 <label><input type="checkbox" value="外出"> 外出</label>
 <label><input type="checkbox" value="仕事"> 仕事が忙しい</label>
 <label><input type="checkbox" value="楽しい"> 楽しいことがあった</label>
+
+<br><br>
+
+<label for="freeMemo">その他・メモ（自由記入）</label>
+<br>
+<textarea
+  id="freeMemo"
+  rows="3"
+  placeholder="例：肩が重い、昼食後、なんとなく気持ち悪い など"
+></textarea>
 
 <br><br>
 <button onclick="saveRecord()">記録する</button>
@@ -46,12 +160,23 @@
 <p id="recordResult">まだ記録されていません</p>
 
 <script>
-  function selectMood(number) {
-    document.getElementById("moodResult").textContent = "選んだ気分：" + number;
-  }
+function selectMood(number, button) {
+  document.getElementById("moodResult").textContent = "選んだ気分：" + number;
+
+  const buttons = document.querySelectorAll(".mood-button");
+
+  buttons.forEach(function(item) {
+    item.classList.remove("selected");
+  });
+
+  button.classList.add("selected");
+}
  function saveRecord() {
   const conditionText = document.getElementById("result").textContent;
   const moodText = document.getElementById("moodResult").textContent;
+  const freeMemo = document.getElementById("freeMemo").value;
+  const environmentText = document.getElementById("environmentResult").textContent;
+
 
   const checkedItems = document.querySelectorAll('input[type="checkbox"]:checked');
   const situations = [];
@@ -67,7 +192,9 @@
     dateTime: dateTime,
     condition: conditionText,
     mood: moodText,
-    situations: situations
+    environment: environmentText,
+    situations: situations,
+  freeMemo: freeMemo
   };
 
   const records = JSON.parse(localStorage.getItem("myBarometerRecords")) || [];
@@ -76,11 +203,14 @@
 
   localStorage.setItem("myBarometerRecords", JSON.stringify(records));
 
-  document.getElementById("recordResult").textContent =
-    dateTime + " / " +
-    conditionText + " / " +
-    moodText + " / 状況：" +
-    (situations.length > 0 ? situations.join("・") : "なし");
+document.getElementById("recordResult").textContent =
+  dateTime + " / " +
+  conditionText + " / " +
+  moodText + " / " +
+  environmentText + " / 状況：" +
+  (situations.length > 0 ? situations.join("・") : "なし") +
+  " / メモ：" +
+  (freeMemo ? freeMemo : "なし");
 }
 function showRecords() {
   const records = JSON.parse(localStorage.getItem("myBarometerRecords")) || [];
@@ -101,8 +231,12 @@ function showRecords() {
     record.condition +
     " / " +
     record.mood +
+    " / 環境：" +
+    (record.environment || "未記録") +
     " / 状況：" +
     (record.situations.length > 0 ? record.situations.join("・") : "なし") +
+    " / メモ：" +
+　　(record.freeMemo || "なし") +
     ' <button onclick="deleteRecord(' + index + ')">削除</button>' +
     "</p>";
 });
@@ -126,7 +260,7 @@ function downloadCSV() {
     return;
   }
 
-  let csv = "日時,体調,気分,状況\n";
+  let csv = "日時,体調,気分,環境,状況,メモ\n";
 
   records.forEach(function(record) {
     const situationText =
@@ -136,7 +270,9 @@ function downloadCSV() {
       '"' + record.dateTime + '",' +
       '"' + record.condition + '",' +
       '"' + record.mood + '",' +
-      '"' + situationText + '"\n';
+      '"' + (record.environment || "未記録") + '",' +
+      '"' + situationText + '",' +
+      '"' + (record.freeMemo || "") + '"\n';
   });
 
   const bom = "\uFEFF";
